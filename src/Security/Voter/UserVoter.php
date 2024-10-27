@@ -11,6 +11,7 @@ final class UserVoter extends Voter
 {
     public const USER_EDIT = 'UTILISATEUR_EDIT';
     public const USER_DELETE = 'UTILISATEUR_DELETE';
+    public const CHANGE_ROLES = 'CHANGER_ROLES';
 
     public function __construct(
         private readonly Security $security
@@ -22,7 +23,7 @@ final class UserVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::USER_EDIT, self::USER_DELETE])
+        return in_array($attribute, [self::USER_EDIT, self::USER_DELETE, self::CHANGE_ROLES])
             && $subject instanceof \App\Entity\User;
     }
 
@@ -59,8 +60,20 @@ final class UserVoter extends Voter
                     return false;
                 }
                 return true;
-        }
+            case self::CHANGE_ROLES:
+                // je dois vérifier si il est admin et qu'il ne veut pas modifier un autre admin
+                if ($subject == null) {
+                    return false;
+                } elseif ($subject->hasRole('ROLE_ADMIN')) {
+                    return false;
+                }
+                elseif ($this->security->isGranted('ROLE_ADMIN')) {
+                    return true;
+                }
+                return false;
 
-        return false;
+            default:
+                return false;
+        }
     }
 }

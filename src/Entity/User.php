@@ -70,6 +70,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $login = null;
 
     #[ORM\Column]
+    #[ApiProperty(writable: true, security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('CHANGER_ROLES', object)")]
+    #[Groups(['user:update'])]
     private array $roles = [];
 
     #[ApiProperty(description: 'plainPassword property', readable: false)]

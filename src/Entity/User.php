@@ -31,7 +31,7 @@ use ApiPlatform\Metadata\Link;
 #[ApiResource(
     operations: [
         new Get(),
-        new Delete(security: "is_granted('UTILISATEUR_DELETE', object)"),
+        new Delete(security: "is_granted('USER_DELETE', object) and object == user"),
         new Post(
             denormalizationContext: ["groups" => ["user:create"]],
             validationContext: ["groups" => ["Default", "user:create"]],
@@ -39,7 +39,7 @@ use ApiPlatform\Metadata\Link;
         ),
         new Patch(
             denormalizationContext: ["groups" => ["user:update"]],
-            security: "is_granted('UTILISATEUR_EDIT', object) and object == user",
+            security: "is_granted('USER_EDIT', object) and object == user",
             validationContext: ["groups" => ["Default", "user:update"]],
             processor: UserProcessor::class,
         ),
@@ -70,7 +70,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $login = null;
 
     #[ORM\Column]
-    #[ApiProperty(writable: true, security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('CHANGER_ROLES', object)")]
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('CHANGE_ROLES', object)")]
     #[Groups(['user:update'])]
     private array $roles = [];
 

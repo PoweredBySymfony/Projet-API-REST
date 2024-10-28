@@ -50,24 +50,25 @@ final class UserVoter extends Voter
                 }
                 return true;
             case self::USER_DELETE:
-                // logic to determine if the user can DELETE
-                // return true or false
+//                dd($subject);
                 if ($subject == null) {
                     return false;
-                } elseif ($this->security->isGranted('ROLE_ADMIN') || $this->security->getUser() === $subject) {
-                    return true;
-                } elseif ($user !== $subject) {
-                    return false;
+
                 }
-                return true;
+                elseif ($user == $subject) {
+                    return true;
+                }
+                elseif ($this->security->isGranted('ROLE_ADMIN')) {
+                    return true;
+                }
+                return false;
             case self::CHANGE_ROLES:
                 // je dois vérifier si il est admin et qu'il ne veut pas modifier un autre admin
                 if ($subject == null) {
                     return false;
                 } elseif ($subject->hasRole('ROLE_ADMIN')) {
                     return false;
-                }
-                elseif ($this->security->isGranted('ROLE_ADMIN')) {
+                } elseif ($this->security->isGranted('ROLE_ADMIN')) {
                     return true;
                 }
                 return false;

@@ -43,6 +43,14 @@ use ApiPlatform\Metadata\Link;
             validationContext: ["groups" => ["Default", "user:update"]],
             processor: UserProcessor::class,
         ),
+        new Patch(
+            uriTemplate: '/users/{id}/roles',
+            denormalizationContext: ["groups" => ["user:update"]],
+            security: "is_granted('CHANGER_ROLES', object)",
+            securityPostDenormalize: "is_granted('CHANGER_ROLES', object)",
+            validationContext: ["groups" => ["Default", "user:update"]],
+            processor: UserProcessor::class,
+        ),
 //        we don't want basic, VIP or artist user to acces the list of users
         new GetCollection(
             uriTemplate: '/partieconcerts/{idPartieConcert}/users',
@@ -70,6 +78,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $login = null;
 
     #[ORM\Column]
+    #[ApiProperty(readable: false, security: "is_granted('CHANGER_ROLES', object)", securityPostDenormalize: "is_granted('CHANGER_ROLES', object)")]
+//    #[Groups(['user:update'])]
     private array $roles = [];
 
     #[ApiProperty(description: 'plainPassword property', readable: false)]
@@ -86,6 +96,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ApiProperty(readable: false)]
     #[Groups(['user:update'])]
     private ?string $currentPlainPassword = null;
+
+    #[Groups(['user:update'])]
+    #[ApiProperty(readable: false)]
+    private ?array $newRoles = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(groups: ["user:create"])]
@@ -191,9 +205,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+//        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->roles);
+    }
+
+    public function clearRoles(): void
+    {
+        $this->roles = [];
     }
 
     /**
@@ -393,4 +417,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getNewRoles(): ?array
+    {
+        return $this->newRoles;
+    }
+
+    public function setNewRoles(?array $newRoles): void
+    {
+        $this->newRoles = $newRoles;
+    }
+
+    public function eraseNewRoles(): void
+    {
+        $this->newRoles = null;
+    }
+
 }

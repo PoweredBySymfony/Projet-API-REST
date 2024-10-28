@@ -48,6 +48,11 @@ class UserProcessor implements ProcessorInterface
             //Modification des données de $data
             $data->setPassword($hashed);
         }
+
+        dump($data->getNewRoles());
+
+        $data->setRoles($data->getNewRoles());
+
         // supprimer les informations sensibles
         $data->eraseCredentials();
         //Sauvegarde en base

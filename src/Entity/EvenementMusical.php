@@ -39,7 +39,6 @@ use ApiPlatform\Metadata\Link;
         new Patch(
             normalizationContext: ["groups" => ["evenementMusical:read"]],
             denormalizationContext: ["groups" => ["event_music:update"]],
-            security: "is_granted('EVENEMENT_MUSICAL_EDIT', object) and object == user",
             validationContext: ['groups' => ['evenement_musical:update']],
             processor: EvenementMusicalProcessor::class
         ),

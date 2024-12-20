@@ -81,9 +81,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Regex(pattern: "#^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,30}$#", message: "Format non respecté. Assurez-vous d\"inclure au moins une lettre minuscule, une lettre majuscule et un chiffre.")]
     private ?string $plainPassword = null;
 
-    #[Assert\NotBlank(groups: ["user:update"])]
-    #[Assert\NotNull(groups: ["user:update"])]
-    #[UserPassword(groups: ["user:update"])]
     #[ApiProperty(readable: false)]
     #[Groups(['user:update'])]
     private ?string $currentPlainPassword = null;
@@ -120,7 +117,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // Associez les autres attributs (collections) aux groupes de lecture
     #[ORM\ManyToMany(targetEntity: EvenementMusical::class, mappedBy: 'participants')]
-    #[Groups('user:read')]
+    #[Groups(['user:read', 'user:update'])]
     private Collection $evenementMusicals;
 
     #[ORM\OneToMany(targetEntity: PartieConcert::class, mappedBy: 'artiste', orphanRemoval: true)]
